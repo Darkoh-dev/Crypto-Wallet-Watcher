@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Node / React
+node_modules/
+dist/
+build/
+.vite/
+
+# Logs
+*.log
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Testing / Coverage
+.coverage
+htmlcov/
+.pytest_cache/
