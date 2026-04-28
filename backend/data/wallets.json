@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "address": "0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe",
+    "chain": "ethereum",
+    "label": "Example wallet",
+    "notes": "Testing wallet tracking",
+    "created_at": "2026-04-28T21:22:43.169142+00:00"
+  },
+  {
+    "id": 2,
+    "address": "0x742d35cc6634c0532925a3b844bc454e4438f44e",
+    "chain": "ethereum",
+    "label": "Second wallet",
+    "notes": "Testing another wallet",
+    "created_at": "2026-04-28T21:32:01.721953+00:00"
+  }
+]
