@@ -4,10 +4,19 @@ from pathlib import Path
 from datetime import datetime, timezone
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 
 app = FastAPI(title="Crypto Wallet Watcher API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 WALLETS_FILE = Path("backend/data/wallets.json")
 
@@ -16,7 +25,6 @@ WALLETS_FILE = Path("backend/data/wallets.json")
 class WalletCreate(BaseModel):
     address: str
     chain: str
-    label: str
     label: str
     notes: str = ""
 
@@ -42,7 +50,7 @@ def get_next_wallet_id(wallets: list[dict]) -> int:
     return max(wallet["id"] for wallet in wallets) + 1
 
 
-def is_vaild_ethereum_address(address: str) -> bool:
+def is_valid_ethereum_address(address: str) -> bool:
     pattern = r"^0x[a-fA-F0-9]{40}$"
     return bool(re.match(pattern, address))
 
@@ -63,10 +71,10 @@ def add_wallet(wallet: WalletCreate):
             detail="Only ethereum wallets are supported."
         )
     
-    if not is_vaild_ethereum_address(wallet.address):
+    if not is_valid_ethereum_address(wallet.address):
         raise HTTPException(
             status_code=400,
-            detail="Invaild ethereum wallet address.",
+            detail="Invalid ethereum wallet address.",
         )
     
     wallets = load_wallets()
