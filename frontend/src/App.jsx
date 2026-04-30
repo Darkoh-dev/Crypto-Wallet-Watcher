@@ -8,6 +8,7 @@ function App() {
   const [loadError, setLoadError] = useState("");
   const [formData, setFormData] = useState({
     address: "",
+    chain: "ethereum",
     label: "",
     notes: "",
   });
@@ -53,7 +54,7 @@ function App() {
         },
         body: JSON.stringify({
           address: formData.address,
-          chain: "ethereum",
+          chain: formData.chain,
           label: formData.label,
           notes: formData.notes,
         }),
@@ -68,6 +69,7 @@ function App() {
       setWallets((currentWallets) => [...currentWallets, data]);
       setFormData({
         address: "",
+        chain: "ethereum",
         label: "",
         notes: "",
       });
@@ -105,6 +107,16 @@ function App() {
               onChange={handleInputChange}
               placeholder="0x..."
             />
+          </label>
+
+          <label>
+            Chain
+            <select name="chain" value={formData.chain} onChange={handleInputChange}>
+              <option value="ethereum">Ethereum</option>
+              <option value="bitcoin">Bitcoin</option>
+              <option value="litecoin">Litecoin</option>
+              <option value="dogecoin">Dogecoin</option>
+            </select>
           </label>
 
           <label>

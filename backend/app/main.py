@@ -50,9 +50,27 @@ def get_next_wallet_id(wallets: list[dict]) -> int:
     return max(wallet["id"] for wallet in wallets) + 1
 
 
-def is_valid_ethereum_address(address: str) -> bool:
-    pattern = r"^0x[a-fA-F0-9]{40}$"
-    return bool(re.match(pattern, address))
+SUPPORTED_CHAINS = {"bitcoin", "ethereum", "litecoin", "dogecoin"}
+
+
+def is_valid_wallet_address(chain: str, address: str) -> bool:
+    if chain == "ethereum":
+        pattern = r"^0x[a-fA-F0-9]{40}$"
+        return bool(re.match(pattern, address))
+    
+    if chain == "bitcoin":
+        pattern = r"^(bc1|[13])[a-zA-HJ-NP-Z0-9]{25,62}$"
+        return bool(re.match(pattern, address))
+    
+    if chain == "litecoin":
+        pattern = r"^(ltc1|[LM3])[a-zA-HJ-NP-Z0-9]{25,62}$"
+        return bool(re.match(pattern, address))
+    
+    if chain == "dogecoin":
+        pattern = r"^D[a-zA-HJ-NP-Z0-9]{25,34}$"
+        return bool(re.match(pattern, address))
+    
+    return False
 
 
 @app.get("/")
@@ -65,21 +83,22 @@ def get_wallets():
 
 @app.post("/wallets")
 def add_wallet(wallet: WalletCreate):
-    if wallet.chain.lower() != "ethereum":
+    normalized_chain = wallet.chain.lower()
+
+    if normalized_chain not in SUPPORTED_CHAINS:
         raise HTTPException(
             status_code=400,
-            detail="Only ethereum wallets are supported."
+            detail="Supported chains are bitcoin, ethereum, litecoin, and dogecoin."
         )
     
-    if not is_valid_ethereum_address(wallet.address):
+    if not is_valid_wallet_address(normalized_chain, wallet.address):
         raise HTTPException(
             status_code=400,
-            detail="Invalid ethereum wallet address.",
+            detail=f"Invalid {normalized_chain} wallet address.",
         )
     
     wallets = load_wallets()
     normalized_address = wallet.address.lower()
-    normalized_chain = wallet.chain.lower()
 
     for existing_wallet in wallets:
         same_address = existing_wallet["address"].lower() == normalized_address

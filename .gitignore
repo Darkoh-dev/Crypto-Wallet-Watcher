@@ -29,3 +29,7 @@ node_modules/
 dist/
 build/
 .vite/
+
+# Notes
+activate-venv-command
+activate-venv-command.txt

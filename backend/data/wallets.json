@@ -22,5 +22,37 @@
     "label": "Third Wallet",
     "notes": "Testing notes.",
     "created_at": "2026-04-29T03:30:07.056165+00:00"
+  },
+  {
+    "id": 4,
+    "address": "1boatslrhtknngkdxeeobr76b53lettpyt",
+    "chain": "bitcoin",
+    "label": "Bitcoin test wallet",
+    "notes": "Testing Bitcoin support",
+    "created_at": "2026-04-30T02:28:57.730344+00:00"
+  },
+  {
+    "id": 5,
+    "address": "lgbif88r9j5kghvvajy7bod5n8aywaq1zm",
+    "chain": "litecoin",
+    "label": "Litecoin test wallet",
+    "notes": "Testing Litecoin support",
+    "created_at": "2026-04-30T02:29:30.261040+00:00"
+  },
+  {
+    "id": 6,
+    "address": "d8bku4tjb8ddxplrhd84q3x4qk9g4njx6e",
+    "chain": "dogecoin",
+    "label": "Dogecoin test wallet",
+    "notes": "Testing Dogecoin support",
+    "created_at": "2026-04-30T02:29:36.109436+00:00"
+  },
+  {
+    "id": 7,
+    "address": "1boatslrhtknngkdxceobr76b53lettpyt",
+    "chain": "bitcoin",
+    "label": "Second Bitcoin Wallet",
+    "notes": "Testing bitcoin wallet",
+    "created_at": "2026-04-30T02:45:02.067318+00:00"
   }
 ]

@@ -77,7 +77,8 @@ label {
 }
 
 input,
-textarea {
+textarea,
+select {
   width: 100%;
   box-sizing: border-box;
   border: 1px solid #cfd8e6;
@@ -91,6 +92,10 @@ textarea {
 textarea {
   min-height: 96px;
   resize: vertical;
+}
+
+select {
+  cursor: pointer;
 }
 
 button {
