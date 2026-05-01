@@ -1,13 +1,17 @@
 import json
+import os
 import re
 from pathlib import Path
 from datetime import datetime, timezone
 
+import requests
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 
+load_dotenv()
 app = FastAPI(title="Crypto Wallet Watcher API")
 
 app.add_middleware(
@@ -18,6 +22,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+BLOCKCHAIR_API_KEY = os.getenv("BLOCKCHAIR_API_KEY")
 WALLETS_FILE = Path("backend/data/wallets.json")
 
 
@@ -52,6 +57,13 @@ def get_next_wallet_id(wallets: list[dict]) -> int:
 
 SUPPORTED_CHAINS = {"bitcoin", "ethereum", "litecoin", "dogecoin"}
 
+BLOCKCHAIR_CHAIN_SLUGS = {
+    "bitcoin": "bitcoin",
+    "ethereum": "ethereum",
+    "litecoin": "litecoin",
+    "dogecoin": "dogecoin",
+}
+
 
 def is_valid_wallet_address(chain: str, address: str) -> bool:
     if chain == "ethereum":
@@ -71,6 +83,67 @@ def is_valid_wallet_address(chain: str, address: str) -> bool:
         return bool(re.match(pattern, address))
     
     return False
+
+
+def fetch_wallet_activity(chain: str, address: str) -> dict:
+    blockchair_chain = BLOCKCHAIR_CHAIN_SLUGS[chain]
+    url = f"https://api.blockchair.com/{blockchair_chain}/dashboards/address/{address}"
+
+    params = {}
+
+    if BLOCKCHAIR_API_KEY:
+        params["key"] = BLOCKCHAIR_API_KEY
+
+    try:
+        response = requests.get(url, params=params, timeout=30)
+    except requests.exceptions.Timeout:
+        raise HTTPException(
+            status_code=504,
+            detail="Blockchair took too long to response. Please try again."
+        )
+    except requests.exceptions.RequestException:
+        raise HTTPException(
+            status_code=502,
+            detail="Could not connect to Blockchair.",
+        )
+
+    if response.status_code == 404:
+        raise HTTPException(
+            status_code=404,
+            detail="Wallet activity was not found.",
+        )
+    
+    if response.status_code == 402:
+        raise HTTPException(
+            status_code=429,
+            detail="Blockchair API limit reached.",
+        )
+    
+    if not response.ok:
+        raise HTTPException(
+            status_code=502,
+            detail="Could not fetch wallet activity from Blockchair.",
+        )
+    
+    return response.json()
+
+
+def summarize_wallet_activity(wallet: dict, raw_activity: dict) -> dict:
+    address = wallet["address"]
+    chain = wallet["chain"]
+
+    wallet_data = raw_activity.get("data", {}).get(address, {})
+    address_data = wallet_data.get("address", {})
+
+    return {
+        "wallet_id": wallet["id"],
+        "address": address,
+        "chain": chain,
+        "balance": address_data.get("balance", 0),
+        "received": address_data.get("received", 0),
+        "spent": address_data.get("spent", 0),
+        "transaction_count": address_data.get("transaction_count", 0),
+    }
 
 
 @app.get("/")
@@ -123,3 +196,27 @@ def add_wallet(wallet: WalletCreate):
     save_wallets(wallets)
 
     return new_wallet
+
+@app.get("/wallets/{wallet_id}/activity")
+def get_wallet_activity(wallet_id: int):
+    wallets = load_wallets()
+
+    selected_wallet = None
+
+    for wallet in wallets:
+        if wallet["id"] == wallet_id:
+            selected_wallet = wallet
+            break
+
+    if selected_wallet is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Wallet was not found.",
+        )
+    
+    raw_activity = fetch_wallet_activity(
+        selected_wallet["chain"],
+        selected_wallet["address"],
+    )
+
+    return summarize_wallet_activity(selected_wallet, raw_activity)

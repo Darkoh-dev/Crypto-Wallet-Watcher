@@ -54,5 +54,13 @@
     "label": "Second Bitcoin Wallet",
     "notes": "Testing bitcoin wallet",
     "created_at": "2026-04-30T02:45:02.067318+00:00"
+  },
+  {
+    "id": 8,
+    "address": "bc1qtq85lewy5npgh2kjzhxa2g7rk9qyfgjjfe828y",
+    "chain": "bitcoin",
+    "label": "Third Bitcoin Wallet",
+    "notes": "Tetsing actually address",
+    "created_at": "2026-05-01T01:28:30.339226+00:00"
   }
 ]
